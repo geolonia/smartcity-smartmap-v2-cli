@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const YAML = require('yamljs');
 const { exec } = require('child_process');
-const { generateLayerNames, downloadGeoJSON } = require('./utils');
+const { generateLayerNames, generateMenuYAML, downloadGeoJSON } = require('./utils');
 
 // YAMLファイルのパス
 const yamlFilePath = process.argv[2];
@@ -28,6 +28,13 @@ if (fs.existsSync(dataDir)) {
 fs.mkdirSync(dataDir);
 
 
+// mbtiles が存在する場合は削除
+const mbtilesPath = path.join(__dirname, 'menu-experiment.mbtiles');
+if (fs.existsSync(mbtilesPath)) {
+    fs.rmSync(mbtilesPath);
+}
+
+
 // メイン関数
 const main = async () => {
     try {
@@ -35,6 +42,12 @@ const main = async () => {
         // YAMLファイルを解析
         const yamlData = YAML.load(yamlFilePath);
         const layers = await generateLayerNames(yamlData, dataDir);
+
+        // メニュー用YAMLを生成
+        const menuYAML = generateMenuYAML(yamlData);
+        const menuYAMLPath = path.join(__dirname, 'menu.yml');
+        fs.writeFileSync(menuYAMLPath, YAML.stringify(menuYAML, 4));
+        console.log('Menu YAML generated at:', menuYAMLPath);
 
         // GeoJSONファイルをダウンロード
         for (const layer of layers) {
@@ -59,6 +72,7 @@ const main = async () => {
             console.log('Vector tile generation complete.');
             console.log(stdout);
         });
+
     } catch (error) {
         console.error(`Error: ${error.message}`);
     }
