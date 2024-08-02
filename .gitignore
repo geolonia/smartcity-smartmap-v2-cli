@@ -131,4 +131,6 @@ dist
 
 
 data/
+_data/
 *.mbtiles
+
