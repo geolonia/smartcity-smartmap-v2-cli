@@ -14,7 +14,8 @@ const main = async () => {
             configFilePath: path.join(__dirname, configFilePath || 'smartcity-data.xlsx'),
             inputDir: path.join(__dirname, InputPath || 'data'),
             outputDir: path.join(__dirname, OutputPath || ''),
-            mbtileName: mbtileName || 'smartcity.mbtiles'
+            mbtileName: mbtileName || 'smartcity.mbtiles',
+            crs: 'EPSG:6672'
         }
     );
 
