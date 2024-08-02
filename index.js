@@ -4,15 +4,17 @@ const SmartMapUtil = require('./lib/SmartMapUtil');
 // データ階層ファイルのパス
 const configFilePath = process.argv[2];
 const InputPath = process.argv[3];
-const OutputPath = process.argv[4];
+const OutputPath = process.argv[4]
+const mbtileName = process.argv[5];
 
 const main = async () => {
 
     const smartMapUtil = new SmartMapUtil(
         {
             configFilePath: path.join(__dirname, configFilePath || 'smartcity-data.xlsx'),
-            dataDir: path.join(__dirname, InputPath || 'data'),
-            MBTilePath: path.join(__dirname, OutputPath || 'smartcity.mbtiles'),
+            inputDir: path.join(__dirname, InputPath || 'data'),
+            outputDir: path.join(__dirname, OutputPath || ''),
+            mbtileName: mbtileName || 'smartcity.mbtiles'
         }
     );
 
