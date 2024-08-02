@@ -1,6 +1,5 @@
 const path = require('path');
 const SmartMapUtil = require('./lib/smartMapUtil');
-const { config } = require('process');
 
 // データ階層ファイルのパス
 const configFilePath = process.argv[2];
@@ -17,8 +16,7 @@ const main = async () => {
         }
     );
 
-    await smartMapUtil.downloadFiles(smartMapUtil.config);
-    await smartMapUtil.convertToGeoJSON(smartMapUtil.config);
+    await smartMapUtil.convertToGeoJSON(smartMapUtil.config); 
     await smartMapUtil.createVectorTiles(smartMapUtil.config);
     await smartMapUtil.createMenuYAML(smartMapUtil.config);
 };
