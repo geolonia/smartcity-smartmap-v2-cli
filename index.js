@@ -12,7 +12,7 @@ const main = async () => {
         {
             configFilePath: path.join(__dirname, configFilePath || 'smartcity-data.xlsx'),
             dataDir: path.join(__dirname, InputPath || 'data'),
-            mbtilesPath: path.join(__dirname, OutputPath || 'smartcity-poc.mbtiles'),
+            MBTilePath: path.join(__dirname, OutputPath || 'smartcity.mbtiles'),
         }
     );
 
