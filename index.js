@@ -11,10 +11,10 @@ const main = async () => {
 
     const smartMapUtil = new SmartMapUtil(
         {
-            configPath: path.join(__dirname, configPath || 'smartcity-data.xlsx'),
-            inputDir: path.join(__dirname, inputPath || 'data'),
-            outputDir: path.join(__dirname, outputPath || ''),
-            mbtileName: mbtileName || 'smartcity.mbtiles',
+            configPath: configPath,
+            inputDir: inputPath,
+            outputDir: outputPath,
+            mbtileName: mbtileName,
             crs: 'EPSG:6672'
         }
     );

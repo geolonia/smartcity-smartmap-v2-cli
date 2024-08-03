@@ -1,25 +1,41 @@
 const SmartMapUtil = require('../lib/SmartMapUtil');
 const fs = require('fs');
 const path = require('path');
+const { isExist, getPath } = require('./utils');
 
-const config = path.join(__dirname, 'test_data/smartcity-data.xlsx'); // 設定ファイルのパス
-const inputData = path.join(__dirname, 'test_data'); // データファイルのパス
+const config = path.join(__dirname, 'data/smartcity-data.xlsx'); // 設定ファイルのパス
+const inputData = path.join(__dirname, 'data'); // データファイルのパス
 
-describe('SmartMapUtil', () => {
 
-  test('タイルとメニュー用ファイルを生成する', () => {
+describe('Basic Usage', () => {
+
+  test('タイルとメニュー用ファイルを生成する', async () => {
 
     const util = new SmartMapUtil({
       configPath: config,
       inputDir: inputData
     });
 
-    util.build();
+    await util.build();
 
-    const filePath = path.join(__dirname, 'smartcity.mbtiles');
-    const fileExists = fs.existsSync(filePath);
+    const tileExists = isExist('smartcity.mbtiles');
+    const menuExists = isExist('menu.yml');
 
-    expect(fileExists).toBe(true);
+    expect(tileExists).toBe(true);
+    expect(menuExists).toBe(true);
   });
+
+  /**
+   * テスト後に生成されたファイルを削除する
+   */
+  afterEach(() => {
+    if (isExist('smartcity.mbtiles')) {
+      fs.unlinkSync(getPath('smartcity.mbtiles'));
+    }
+    if (isExist('menu.yml')) {
+      fs.unlinkSync(getPath('menu.yml'));
+    }
+  });
+
 
 });
