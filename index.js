@@ -1,5 +1,6 @@
 const path = require('path');
 const SmartMapUtil = require('./lib/SmartMapUtil');
+const parse  = require("./lib/parseExcel");
 
 // データ階層ファイルのパス
 const configPath = process.argv[2];
@@ -9,9 +10,13 @@ const mbtileName = process.argv[5];
 
 const main = async () => {
 
+    const config = parse(configPath);
+
+    console.log('config :', config);
+
     const smartMapUtil = new SmartMapUtil(
         {
-            configPath: configPath,
+            config: config,
             inputDir: inputPath,
             outputDir: outputPath,
             mbtileName: mbtileName,
