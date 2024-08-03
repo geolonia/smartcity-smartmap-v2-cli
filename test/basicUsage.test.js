@@ -7,7 +7,7 @@ const config = path.join(__dirname, 'data/smartcity-data.xlsx'); // 設定ファ
 const inputData = path.join(__dirname, 'data'); // データファイルのパス
 
 
-describe('Basic Usage', () => {
+describe('基本的な使い方', () => {
 
   test('タイルとメニュー用ファイルを生成する', async () => {
 
