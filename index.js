@@ -5,19 +5,19 @@ const minimist = require('minimist');
 
 const args = minimist(process.argv.slice(2));
 
-if (!args.configPath || !args.inputPath) {
-  console.error('Usage: npm run build -- --configPath <config_file> --inputPath <input_data_dir>');
+if (!args.config || !args.input) {
+  console.error('Usage: npm run build -- --config <config_file> --input <input_data_dir>');
   process.exit(1);
 }
 
 const main = async () => {
 
-    const config = parse(args.configPath);
+    const config = parse(args.config);
     const smartMapUtil = new SmartMapUtil(
         {
             config: config,
-            inputDir: args.inputPath,
-            outputDir: args.outputPath,
+            inputDir: args.input,
+            outputDir: args.output,
             mbtileName: args.mbtileName,
             crs: args.crs || 'EPSG:6672' // 仮で平面直角座標 4系（香川県）を指定
         }
