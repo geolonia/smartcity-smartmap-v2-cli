@@ -22,6 +22,8 @@ describe('基本的な使い方', () => {
     const tileExists = isExist('smartcity.mbtiles');
     const menu = parseYaml('menu.yml');    
 
+    console.log(JSON.stringify(menu, null, 2));
+
     expect(tileExists).toBe(true);
     expect(menu).toEqual({
       "都市計画情報": {
@@ -30,13 +32,12 @@ describe('基本的な使い方', () => {
             "第一種低層住居専用地域": {
               "include": [
                 "第一種低層住居専用地域(60_40)",
-                "第一種低層住居専用地域(80_50)",
-                "第一種低層住居専用地域(100_60)"
+                "第一種低層住居専用地域(80_50)"
               ]
             }
           },
           {
-            "第一種中高層住居専用地域": {
+            "第一種中高層住居専用地域 ": {
               "include": [
                 "第一種中高層住居専用地域"
               ]
@@ -61,11 +62,23 @@ describe('基本的な使い方', () => {
             }
           }
         ]
+      },
+      "防災情報": {
+        "IoT センサー": [
+          {
+            "冠水状況": {
+              "include": [
+                "FloodSituation"
+              ],
+              "type": "fiware"
+            }
+          }
+        ]
       }
     });
   });
 
-  test('対応データ: Shape、GeoJSON', async () => {
+  test('対応データは、shape/geojson/fiware', async () => {
 
     const excel = [
       {
@@ -82,6 +95,13 @@ describe('基本的な使い方', () => {
         'データ種別': 'shape',
         'データ参照先': '第一種中高層住居専用地域'
       },
+      {
+        '大カテゴリー': '',
+        '中カテゴリー': '',
+        'レイヤー名': '冠水状況',
+        'データ種別': 'fiware',
+        'データ参照先': 'FloodSituation'
+      }
     ]
 
     const util = new SmartMapUtil({

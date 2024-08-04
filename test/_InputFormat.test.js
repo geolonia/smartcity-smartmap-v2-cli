@@ -26,7 +26,7 @@ describe('入力データのフォーマットについて', () => {
     
   });
 
-  test('データ種別は geojson/shape を指定できる', async () => {
+  test('geojson/shape/fiware 以外のデータを指定するとエラー', async () => {
 
     const excel = [{
       '大カテゴリー': '',
@@ -44,7 +44,7 @@ describe('入力データのフォーマットについて', () => {
     try {
       await util.build();
     } catch (e) {
-      expect(e.message).toBe('データ種別は shape か geojson を指定してください');
+      expect(e.message).toBe('データ種別は shape、geojson、fiware のいずれかを指定してください');
     }
   });
 

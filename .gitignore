@@ -137,4 +137,4 @@ _data/
 tmp/
 *.yml
 
-!test/*
+!test/data
