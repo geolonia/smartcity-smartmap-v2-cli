@@ -5,9 +5,28 @@ const { isExist, getPath, parseYaml } = require('./testUtils');
 const inputData = path.join(__dirname, 'data'); // データファイルのパス
 
 
-describe('未対応の入力形式', () => {
+describe('入力データのフォーマットについて', () => {
 
-  test('データ種別にしていできるのは、geojson か shape のみ', async () => {
+  test('レイヤー名とデータ参照先のファイル名が違ってもOK', async () => {
+
+    const excel = [{
+      '大カテゴリー': '',
+      '中カテゴリー': '',
+      'レイヤー名': '公衆無線LANアクセスポイント',
+      'データ種別': 'geojson',
+      'データ参照先': '公衆無線LAN'
+    }]
+
+    const util = new SmartMapUtil({
+      config: excel,
+      inputDir: inputData
+    });
+
+    await util.build();
+    
+  });
+
+  test('データ種別は geojson/shape を指定できる', async () => {
 
     const excel = [{
       '大カテゴリー': '',
@@ -29,7 +48,7 @@ describe('未対応の入力形式', () => {
     }
   });
 
-  test('GeoJSON の URL指定できる。Shapeはローカルファイルのみ対応', async () => {
+  test('データ参照先にURLを指定できるのは GeoJSON のみ', async () => {
     
     const excel = [{
       '大カテゴリー': '',
@@ -51,7 +70,7 @@ describe('未対応の入力形式', () => {
     }
   });
   
-  test('改行で複数のファイルやURLを指定できない', async () => {
+  test('データ参照先に複数データを指定できない', async () => {
     
     const excel = [{
       '大カテゴリー': '',
@@ -72,6 +91,12 @@ describe('未対応の入力形式', () => {
       expect(e.message).toBe('データ参照先には改行を含めることはできません');
     }
   });
+
+  /**
+   * TODO: 
+   * ・shape ファイルの crs が異なる場合のテストを追加
+   * ・同じレイヤー名に、複数のデータがあり、それぞれが URL の場合のテストを追加（現状上書きされるので修正する）
+   */
 
   /**
    * テスト後に生成されたファイルを削除する
