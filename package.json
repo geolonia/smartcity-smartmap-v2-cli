@@ -3,6 +3,7 @@
     "axios": "^1.7.2",
     "child_process": "^1.0.2",
     "klaw": "^4.1.0",
+    "minimist": "^1.2.8",
     "uuid": "^10.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yamljs": "^0.3.0"
@@ -10,8 +11,9 @@
   "name": "smartcity-menu-experiment-cli",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
+    "build": "node index.js",
     "test": "jest"
   },
   "author": "",
