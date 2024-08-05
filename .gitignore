@@ -131,4 +131,10 @@ dist
 
 
 data/
+_data/
 *.mbtiles
+
+tmp/
+*.yml
+
+!test/data
