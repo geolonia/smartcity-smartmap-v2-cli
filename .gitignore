@@ -135,6 +135,6 @@ _data/
 *.mbtiles
 
 tmp/
-*.yml
+menu.yml
 
 !test/data
