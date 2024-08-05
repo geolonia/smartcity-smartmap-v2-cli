@@ -22,8 +22,6 @@ describe('基本的な使い方', () => {
     const tileExists = isExist('smartcity.mbtiles');
     const menu = parseYaml('menu.yml');    
 
-    console.log(JSON.stringify(menu, null, 2));
-
     expect(tileExists).toBe(true);
     expect(menu).toEqual({
       "都市計画情報": {
@@ -117,6 +115,10 @@ describe('基本的な使い方', () => {
     expect(tileExists).toBe(true);
     expect(menuExists).toBe(true);
   });
+
+  /**
+   * ルート、大カテゴリーのみ、注カテゴリのみ、レイヤーのみのテストを追加
+   */
   
 
   /**
