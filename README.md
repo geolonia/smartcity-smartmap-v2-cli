@@ -10,5 +10,5 @@
 $ npm install
 $ npm run build -- --config smartcity-data.xlsx --input ./data
 ```
-- `--configPath` には、メニュー用設定ファイルのパスを指定します。
-- `--inputPath` には、ベクトルタイルを生成する元データが格納されているディレクトリを指定します。
+- `--config` には、メニュー用設定ファイルのパスを指定します。
+- `--input` には、ベクトルタイルを生成する元データが格納されているディレクトリを指定します。
