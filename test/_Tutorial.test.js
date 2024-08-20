@@ -20,58 +20,70 @@ describe('基本的な使い方', () => {
     await util.build();
 
     const tileExists = isExist('smartcity.mbtiles');
-    const menu = parseYaml('menu.yml');    
+    const menu = parseYaml('menu.yml');
 
     expect(tileExists).toBe(true);
     expect(menu).toEqual({
       "都市計画情報": {
-        "用途地域": [
-          {
-            "第一種低層住居専用地域": {
-              "include": [
-                "第一種低層住居専用地域(60_40)",
-                "第一種低層住居専用地域(80_50)"
-              ]
-            }
-          },
-          {
-            "第一種中高層住居専用地域 ": {
-              "include": [
-                "第一種中高層住居専用地域"
-              ]
+        "type": "category",
+        "items": {
+          "用途地域": {
+            "type": "category",
+            "items": {
+              "第一種低層住居専用地域": {
+                "type": "data",
+                "include": [
+                  "第一種低層住居専用地域(60_40)",
+                  "第一種低層住居専用地域(80_50)"
+                ]
+              },
+              "第一種中高層住居専用地域 ": {
+                "type": "data",
+                "include": [
+                  "第一種中高層住居専用地域"
+                ]
+              }
             }
           }
-        ]
+        }
       },
       "施設情報": {
-        "くらし": [
-          {
-            "AED設置場所": {
-              "include": [
-                "AED設置場所"
-              ]
-            }
-          },
-          {
-            "公衆無線LANアクセスポイント": {
-              "include": [
-                "公衆無線LAN"
-              ]
+        "type": "category",
+        "items": {
+          "くらし": {
+            "type": "category",
+            "items": {
+              "AED設置場所": {
+                "type": "data",
+                "include": [
+                  "AED設置場所"
+                ]
+              },
+              "公衆無線LANアクセスポイント": {
+                "type": "data",
+                "include": [
+                  "公衆無線LAN"
+                ]
+              }
             }
           }
-        ]
+        }
       },
       "防災情報": {
-        "IoT センサー": [
-          {
-            "冠水状況": {
-              "include": [
-                "FloodSituation"
-              ],
-              "type": "fiware"
+        "type": "category",
+        "items": {
+          "IoT センサー": {
+            "type": "category",
+            "items": {
+              "冠水状況": {
+                "type": "data",
+                "include": [
+                  "FloodSituation"
+                ]
+              }
             }
           }
-        ]
+        }
       }
     });
   });
@@ -119,7 +131,7 @@ describe('基本的な使い方', () => {
   /**
    * 大カテゴリーのみ、中カテゴリのみ、レイヤーのみのテストを追加
    */
-  
+
 
   /**
    * テスト後に生成されたファイルを削除する
