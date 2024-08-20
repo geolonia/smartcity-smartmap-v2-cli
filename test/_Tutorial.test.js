@@ -12,17 +12,13 @@ describe('基本的な使い方', () => {
 
   test('タイルとメニュー用ファイルを生成', async () => {
 
-    const util = new SmartMapUtil({
-      config: config,
-      inputDir: inputData
-    });
-
+    const util = new SmartMapUtil({ config: config, inputDir: inputData });
     await util.build();
 
     const tileExists = isExist('smartcity.mbtiles');
-    const menu = parseYaml('menu.yml');
-
     expect(tileExists).toBe(true);
+
+    const menu = parseYaml('menu.yml');
     expect(menu).toEqual({
       "都市計画情報": {
         "type": "category",
@@ -114,11 +110,7 @@ describe('基本的な使い方', () => {
       }
     ]
 
-    const util = new SmartMapUtil({
-      config: excel,
-      inputDir: inputData,
-    });
-
+    const util = new SmartMapUtil({ config: excel, inputDir: inputData });
     await util.build();
 
     const tileExists = isExist('smartcity.mbtiles');
@@ -128,9 +120,78 @@ describe('基本的な使い方', () => {
     expect(menuExists).toBe(true);
   });
 
-  /**
-   * 大カテゴリーのみ、中カテゴリのみ、レイヤーのみのテストを追加
-   */
+
+  test('レイヤー名のみ指定は対応', async () => {
+
+    const excel = [
+      {
+        '大カテゴリー': '',
+        '中カテゴリー': '',
+        'レイヤー名': 'AED設置場所',
+        'データ種別': 'geojson',
+        'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
+      },
+    ]
+
+    const util = new SmartMapUtil({ config: excel, inputDir: inputData });
+    await util.build();
+
+    const menu = parseYaml('menu.yml');
+
+    expect(menu).toEqual({
+      "AED設置場所": {
+        "type": "data",
+        "include": [
+          "AED設置場所"
+        ]
+      }
+    });
+  });
+
+  test('大カテゴリーとレイヤー名を指定も対応', async () => {
+    const excel = [
+      {
+        '大カテゴリー': '施設情報',
+        '中カテゴリー': '',
+        'レイヤー名': 'AED設置場所',
+        'データ種別': 'geojson',
+        'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
+      },
+    ]
+
+    const util = new SmartMapUtil({ config: excel, inputDir: inputData });
+    await util.build();
+
+    const menu = parseYaml('menu.yml');
+    expect(menu).toEqual({
+      "施設情報": {
+        "type": "category",
+        "items": {
+          "AED設置場所": {
+            "type": "data",
+            "include": [
+              "AED設置場所"
+            ]
+          }
+        }
+      }
+    });
+  });
+
+  test('中カテゴリーとレイヤー名の組み合わせは非対応', async () => {
+    const excel = [
+      {
+        '大カテゴリー': '',
+        '中カテゴリー': 'くらし',
+        'レイヤー名': 'AED設置場所',
+        'データ種別': 'geojson',
+        'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
+      },
+    ]
+
+    const util = new SmartMapUtil({ config: excel, inputDir: inputData });
+    await util.build();
+  });
 
 
   /**
