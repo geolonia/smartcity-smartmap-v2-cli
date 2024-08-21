@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { isExist, getPath, parseYaml } = require('./testUtils');
 const parse = require('../lib/parseExcel');
+const exp = require('constants');
 
 const config = parse(path.join(__dirname, 'data/smartcity-data.xlsx')); // Excel のデータを読み込む
 const inputData = path.join(__dirname, 'data'); // データファイルのパス
@@ -26,18 +27,17 @@ describe('基本的な使い方', () => {
           "用途地域": {
             "type": "category",
             "items": {
-              "第一種低層住居専用地域": {
+              "第一種低層住居専用地域(60_40)": {
                 "type": "data",
-                "include": [
-                  "第一種低層住居専用地域(60_40)",
-                  "第一種低層住居専用地域(80_50)"
-                ]
+                "tileId": "第一種低層住居専用地域(60_40)"
+              },
+              "第一種低層住居専用地域(80_50)": {
+                "type": "data",
+                "tileId": "第一種低層住居専用地域(80_50)"
               },
               "第一種中高層住居専用地域 ": {
                 "type": "data",
-                "include": [
-                  "第一種中高層住居専用地域"
-                ]
+                "tileId": "第一種中高層住居専用地域 "
               }
             }
           }
@@ -51,15 +51,11 @@ describe('基本的な使い方', () => {
             "items": {
               "AED設置場所": {
                 "type": "data",
-                "include": [
-                  "AED設置場所"
-                ]
+                "tileId": "AED設置場所"
               },
               "公衆無線LANアクセスポイント": {
                 "type": "data",
-                "include": [
-                  "公衆無線LAN"
-                ]
+                "tileId": "公衆無線LAN"
               }
             }
           }
@@ -73,9 +69,7 @@ describe('基本的な使い方', () => {
             "items": {
               "冠水状況": {
                 "type": "data",
-                "include": [
-                  "FloodSituation"
-                ]
+                "tileId": "FloodSituation"
               }
             }
           }
@@ -90,21 +84,24 @@ describe('基本的な使い方', () => {
       {
         '大カテゴリー': '',
         '中カテゴリー': '',
-        'レイヤー名': 'AED設置場所',
+        'メニュータイトル': 'AED設置場所',
+        'タイルレイヤー名': 'AED設置場所',
         'データ種別': 'geojson',
         'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
       },
       {
         '大カテゴリー': '',
         '中カテゴリー': '',
-        'レイヤー名': '第一種中高層住居専用地域',
+        'メニュータイトル': '第一種中高層住居専用地域',
+        'タイルレイヤー名': '第一種中高層住居専用地域',
         'データ種別': 'shape',
         'データ参照先': '第一種中高層住居専用地域'
       },
       {
         '大カテゴリー': '',
         '中カテゴリー': '',
-        'レイヤー名': '冠水状況',
+        'メニュータイトル': '冠水状況',
+        'タイルレイヤー名': '冠水状況',
         'データ種別': 'fiware',
         'データ参照先': 'FloodSituation'
       }
@@ -121,13 +118,14 @@ describe('基本的な使い方', () => {
   });
 
 
-  test('レイヤー名のみ指定は対応', async () => {
+  test('タイルレイヤー名のみ指定は対応', async () => {
 
     const excel = [
       {
         '大カテゴリー': '',
         '中カテゴリー': '',
-        'レイヤー名': 'AED設置場所',
+        'メニュータイトル': 'AED設置場所',
+        'タイルレイヤー名': 'AED設置場所',
         'データ種別': 'geojson',
         'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
       },
@@ -141,19 +139,18 @@ describe('基本的な使い方', () => {
     expect(menu).toEqual({
       "AED設置場所": {
         "type": "data",
-        "include": [
-          "AED設置場所"
-        ]
+        "tileId": "AED設置場所"
       }
     });
   });
 
-  test('大カテゴリーとレイヤー名を指定も対応', async () => {
+  test('大カテゴリーとタイルレイヤー名を指定も対応', async () => {
     const excel = [
       {
         '大カテゴリー': '施設情報',
         '中カテゴリー': '',
-        'レイヤー名': 'AED設置場所',
+        'メニュータイトル': 'AED設置場所',
+        'タイルレイヤー名': 'AED設置場所',
         'データ種別': 'geojson',
         'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
       },
@@ -169,28 +166,32 @@ describe('基本的な使い方', () => {
         "items": {
           "AED設置場所": {
             "type": "data",
-            "include": [
-              "AED設置場所"
-            ]
+            "tileId": "AED設置場所"
           }
         }
       }
     });
   });
 
-  test('中カテゴリーとレイヤー名の組み合わせは非対応', async () => {
+  test('中カテゴリーとタイルレイヤー名の組み合わせは非対応', async () => {
     const excel = [
       {
         '大カテゴリー': '',
         '中カテゴリー': 'くらし',
-        'レイヤー名': 'AED設置場所',
+        'メニュータイトル': 'AED設置場所',
+        'タイルレイヤー名': 'AED設置場所',
         'データ種別': 'geojson',
         'データ参照先': 'https://opendata.takamatsu-fact.com/aed_location/data.geojson'
       },
     ]
 
-    const util = new SmartMapUtil({ config: excel, inputDir: inputData });
-    await util.build();
+    try {
+      const util = new SmartMapUtil({ config: excel, inputDir: inputData });
+      await util.build();
+    } catch (e) {
+      expect(e.message).toBe('中カテゴリーを指定する場合は、大カテゴリーも指定してください');
+    }
+
   });
 
 
