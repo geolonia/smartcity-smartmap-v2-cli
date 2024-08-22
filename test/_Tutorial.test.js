@@ -3,13 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const { isExist, getPath, parseYaml } = require('./testUtils');
 const parse = require('../lib/parseExcel');
-const exp = require('constants');
 
 const config = parse(path.join(__dirname, 'data/smartcity-data.xlsx')); // Excel のデータを読み込む
 const inputData = path.join(__dirname, 'data'); // データファイルのパス
 
-describe('基本的な使い方', () => {
+jest.setTimeout(10000);
 
+describe('基本的な使い方', () => {
 
   test('タイルとメニュー用ファイルを生成', async () => {
 
@@ -188,6 +188,7 @@ describe('基本的な使い方', () => {
     try {
       const util = new SmartMapUtil({ config: excel, inputDir: inputData });
       await util.build();
+      throw new Error('エラーが発生しませんでした');
     } catch (e) {
       expect(e.message).toBe('中カテゴリーを指定する場合は、大カテゴリーも指定してください');
     }

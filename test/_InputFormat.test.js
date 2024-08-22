@@ -1,7 +1,7 @@
 const SmartMapUtil = require('../lib/SmartMapUtil');
 const fs = require('fs');
 const path = require('path');
-const { isExist, getPath, parseYaml } = require('./testUtils');
+const { isExist, getPath } = require('./testUtils');
 const inputData = path.join(__dirname, 'data'); // データファイルのパス
 
 
@@ -24,7 +24,9 @@ describe('入力データのフォーマットについて', () => {
     });
 
     await util.build();
-    
+
+    const menuExists = isExist('menu.yml');
+    expect(menuExists).toBe(true);
   });
 
   test('geojson/shape/fiware 以外のデータを指定するとエラー', async () => {
@@ -45,6 +47,7 @@ describe('入力データのフォーマットについて', () => {
 
     try {
       await util.build();
+      throw new Error('エラーが発生しませんでした');
     } catch (e) {
       expect(e.message).toBe('データ種別は shape、geojson、fiware のいずれかを指定してください');
     }
@@ -68,6 +71,7 @@ describe('入力データのフォーマットについて', () => {
 
     try {
       await util.build();
+      throw new Error('エラーが発生しませんでした');
     } catch (e) {
       expect(e.message).toBe('Shape ファイルはローカルファイルのみ対応しています');
     }
@@ -91,15 +95,49 @@ describe('入力データのフォーマットについて', () => {
 
     try {
       await util.build();
+      throw new Error('エラーが発生しませんでした');
     } catch (e) {
       expect(e.message).toBe('データ参照先には改行を含めることはできません');
+    }
+  });
+
+  test('同じカテゴリ、メニュータイトルを複数指定できない', async () => {
+    
+    const excel = [
+      {
+        '大カテゴリー': '都市計画情報',
+        '中カテゴリー': '用途地域',
+        'メニュータイトル': '第一種低層住居専用地域',
+        'タイルレイヤー名': '第一種低層住居専用地域(60_40)',
+        'データ種別': 'shape',
+        'データ参照先': '第一種低層住居専用地域(60_40)'
+      },
+      {
+        '大カテゴリー': '都市計画情報',
+        '中カテゴリー': '用途地域',
+        'メニュータイトル': '第一種低層住居専用地域',
+        'タイルレイヤー名': '第一種低層住居専用地域(80_50)',
+        'データ種別': 'shape',
+        'データ参照先': '第一種低層住居専用地域(80_50)'
+      }
+    ]
+
+    const util = new SmartMapUtil({
+      config: excel,
+      inputDir: inputData,
+    });
+
+    try {
+      await util.build();
+      throw new Error('エラーが発生しませんでした');
+    } catch (e) {
+      expect(e.message).toBe('メニュータイトル: 都市計画情報/用途地域/第一種低層住居専用地域 は重複しています');
     }
   });
 
   /**
    * TODO: 
    * ・同じファイル名のテスト
-   * ・同じメニュータイトル名のテスト
    * ・shape ファイルの crs が異なる場合のテストを追加
    */
 
