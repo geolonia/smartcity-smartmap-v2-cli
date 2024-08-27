@@ -22,20 +22,25 @@ describe('基本的な使い方', () => {
     const menu = parseYaml('menu.yml');
     expect(menu).toEqual({
       "都市計画情報": {
+        "id": "都市計画情報",
         "type": "category",
         "items": {
           "用途地域": {
+            "id": "都市計画情報/用途地域",
             "type": "category",
             "items": {
               "第一種低層住居専用地域(60_40)": {
+                "id": "都市計画情報/用途地域/第一種低層住居専用地域(60_40)",
                 "type": "data",
                 "tileId": "第一種低層住居専用地域(60_40)"
               },
               "第一種低層住居専用地域(80_50)": {
+                "id": "都市計画情報/用途地域/第一種低層住居専用地域(80_50)",
                 "type": "data",
                 "tileId": "第一種低層住居専用地域(80_50)"
               },
               "第一種中高層住居専用地域 ": {
+                "id": "都市計画情報/用途地域/第一種中高層住居専用地域 ",
                 "type": "data",
                 "tileId": "第一種中高層住居専用地域 "
               }
@@ -44,16 +49,20 @@ describe('基本的な使い方', () => {
         }
       },
       "施設情報": {
+        "id": "施設情報",
         "type": "category",
         "items": {
           "くらし": {
+            "id": "施設情報/くらし",
             "type": "category",
             "items": {
               "AED設置場所": {
+                "id": "施設情報/くらし/AED設置場所",
                 "type": "data",
                 "tileId": "AED設置場所"
               },
               "公衆無線LANアクセスポイント": {
+                "id": "施設情報/くらし/公衆無線LANアクセスポイント",
                 "type": "data",
                 "tileId": "公衆無線LAN"
               }
@@ -62,12 +71,16 @@ describe('基本的な使い方', () => {
         }
       },
       "防災情報": {
+        "id": "防災情報",
         "type": "category",
         "items": {
           "IoT センサー": {
+            "id": "防災情報/IoT センサー",
             "type": "category",
             "items": {
               "冠水状況": {
+                "id": "防災情報/IoT センサー/冠水状況",
+                "dataType": "fiware",
                 "type": "data",
                 "tileId": "FloodSituation"
               }
@@ -138,6 +151,7 @@ describe('基本的な使い方', () => {
 
     expect(menu).toEqual({
       "AED設置場所": {
+        "id": "AED設置場所",
         "type": "data",
         "tileId": "AED設置場所"
       }
@@ -162,9 +176,11 @@ describe('基本的な使い方', () => {
     const menu = parseYaml('menu.yml');
     expect(menu).toEqual({
       "施設情報": {
+        "id": "施設情報",
         "type": "category",
         "items": {
           "AED設置場所": {
+            "id": "施設情報/AED設置場所",
             "type": "data",
             "tileId": "AED設置場所"
           }
