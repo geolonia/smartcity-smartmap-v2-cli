@@ -8,11 +8,12 @@
 
 ```
 $ npm install
-$ npm run build -- --config smartcity-data.xlsx --input ./data
-> MBTiles を path/smartcity.mbtiles に出力しました。
-> メニューファイルを path/menu.yml に出力しました。
-> 処理が完了しました
+$ ./main.sh <input_directory> <config_file_excel>
 ```
 
-- `--config` には、メニュー用設定ファイルのパスを指定します。
-- `--input` には、ベクトルタイルを生成する元データが格納されているディレクトリを指定します。
+- `input_directory` には、ベクトルタイルを生成する元データが格納されているディレクトリを指定します。
+- `config_file_excel` には、メニュー用設定ファイルのパスを指定します。
+
+```
+$ ./main.sh ./data ./data/smartcity-menu.xlsx
+```
