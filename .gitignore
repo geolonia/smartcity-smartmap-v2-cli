@@ -138,3 +138,7 @@ tmp/
 menu.yml
 
 !test/data
+
+output.xlsx
+bin/yaizu
+data.json

@@ -92,4 +92,13 @@ const configToMenuYAML = (config, outputFile) => {
   console.log(`メニューファイルを ${outputFile} に出力しました。`);
 }
 
-module.exports = configToMenuYAML;
+const config_file = process.argv[2];
+const output_file = process.argv[3];
+
+if (!config_file || !output_file) {
+  console.error('Usage: node configToMenuYAML <config_file> <output_file>');
+  process.exit(1);
+}
+
+const config = JSON.parse(fs.readFileSync(config_file, 'utf8'));
+configToMenuYAML(config, output_file);

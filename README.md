@@ -16,3 +16,12 @@ $ npm run build -- --config smartcity-data.xlsx --input ./data
 
 - `--config` には、メニュー用設定ファイルのパスを指定します。
 - `--input` には、ベクトルタイルを生成する元データが格納されているディレクトリを指定します。
+
+
+
+## メモ
+
+1. Excel をシェルで読み込める形式に変更
+2. データ（GeoJSON）をダウンロードして、`./data` に配置
+3. 指定されたタイルレイヤー名 or ファイル名 + 指定されたTippecanoeのオプションで、MBTiles を生成
+4. メニューファイルを生成

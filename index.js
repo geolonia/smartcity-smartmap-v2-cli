@@ -1,7 +1,7 @@
 const path = require('path');
 const SmartMapUtil = require('./lib/SmartMapUtil');
 const parse  = require("./lib/parseExcel");
-const minimist = require('minimist');
+const fs = require('fs');
 
 const args = minimist(process.argv.slice(2));
 
@@ -13,17 +13,20 @@ if (!args.config || !args.input) {
 const main = async () => {
 
     const config = parse(args.config);
-    const smartMapUtil = new SmartMapUtil(
-        {
-            config: config,
-            inputDir: args.input,
-            outputDir: args.output,
-            mbtileName: args.mbtileName,
-            crs: args.crs || 'EPSG:6672' // 仮で平面直角座標 4系（香川県）を指定
-        }
-    );
+    console.log({config});
+    // json ファイルに変換
+    fs.writeFileSync('config.json', JSON.stringify(config, null, 2));
+    // const smartMapUtil = new SmartMapUtil(
+    //     {
+    //         config: config,
+    //         inputDir: args.input,
+    //         outputDir: args.output,
+    //         mbtileName: args.mbtileName,
+    //         crs: args.crs
+    //     }
+    // );
 
-    await smartMapUtil.build();
+    // await smartMapUtil.build();
 };
 
 main();
