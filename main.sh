@@ -130,8 +130,7 @@ jq -c '.[]' $json_file | while read item; do
       "-M" "500000" # タイルサイズを500KBに制限
       "--no-tile-stats" # タイル統計情報を生成しない
       "-Z" "9"
-      "-z" "10"
-      # "-z" "14"
+      "-z" "14"
       "--simplify-only-low-zooms" # 低ズームレベルのみ簡略化
       "--cluster-distance=10" # 10 ピクセル以内はクラスタリング
       "--cluster-densest-as-needed" # 重複がある場合はクラスタリング
@@ -160,8 +159,7 @@ TILEJOIN_OPTS=(
     "--no-tile-size-limit" # タイルサイズの制限を無効
     "--no-tile-stats" # タイル統計情報を生成しない
     "-Z" "9" # このズーム以下のタイルはコピーしない
-    "-z" "10"
-    # "-z" "15" # このズーム以上のタイルはコピーしない
+    "-z" "14" # このズーム以上のタイルはコピーしない
     "--force"
 )
 
