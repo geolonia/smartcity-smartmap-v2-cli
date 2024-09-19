@@ -20,7 +20,7 @@ describe('基本的な使い方', () => {
     const scriptPath = path.join(__dirname, '../main.sh');
     const dataPath = path.join(__dirname, 'data');
     const configPath = path.join(__dirname, 'config/basic.xlsx');
-    execSync(`bash ${scriptPath} ${dataPath} ${configPath} EPSG:2446`).toString();
+    execSync(`bash ${scriptPath} ${dataPath} ${configPath} EPSG:2446`);
 
     const mbtilesPath = path.join(__dirname, '../output.mbtiles');
     const menuPath = path.join(__dirname, '../menu.yml');
