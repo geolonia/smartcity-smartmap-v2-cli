@@ -70,11 +70,15 @@ jq -c '.[]' $json_file | while read item; do
     extensions=("shp" "prj" "cpg" "dbf" "sbn" "fbn" "ain" "ixs" "mxs" "atx" "shp.xml" "shx" "sbx")
     reference_file=$(basename $reference ".shp")
     for ext in "${extensions[@]}"; do
-      file=$(find "$input_directory" -iname "$reference_file.$ext" -print -quit)
-      echo $file
-      if [ -n "$file" ]; then
-        echo "Renaming $file to $input_directory/$tileLayer.$ext"
-        mv "$file" "$input_directory/$tileLayer.$ext"
+      src=$(find "$input_directory" -iname "$reference_file.$ext" -print -quit)
+      dst="$input_directory/$tileLayer.$ext"
+
+      # 移動元と移動先が同じか確認
+      if [ -n "$src" ] && [ "$src" != "$dst" ]; then
+          echo "ファイル名を変更:  $src to $dst"
+          mv "$src" "$dst"
+      else
+          echo "移動元と移動先が同じファイルです。操作をスキップします。"
       fi
     done
   fi
