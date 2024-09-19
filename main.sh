@@ -3,16 +3,15 @@ set -ex
 
 # 引数が指定されているか確認
 if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "使用方法: $0 <input_directory> <config_file_excel>"
+  echo "使用方法: $0 <input_directory> <config_file_excel> [crs]"
   exit 1
 fi
-
-# node ./bin/xlsx2json.js output.xlsx
 
 # 引数で指定されたディレクトリを変数に代入
 input_directory="$1"
 # 末尾にスラッシュがある場合は削除
 input_directory=${input_directory%/}
+crs="$3"
 
 # ディレクトリが存在するか確認
 if [ ! -d "$input_directory" ]; then
@@ -26,6 +25,7 @@ if [ ! -f "$2" ]; then
   exit 1
 fi
 
+node ./bin/xlsx2json.js $2
 
 json_file="data.json"
 
@@ -89,6 +89,8 @@ jq -c '.[]' $json_file | while read item; do
   # --------------------------------------------------
 
   # Shape の場合
+  s_srs_args=""
+
   if [ $dataType = "shape" ]; then
     # .prj ファイルが Shift_JIS だと ogr2ogr でエラーが出るので UTF-8 に変換
     prj_file="$input_directory/$tileLayer.prj"
@@ -97,11 +99,13 @@ jq -c '.[]' $json_file | while read item; do
         if [ "$encoding" = "Shift_JIS" ]; then
             nkf --overwrite -w $prj_file
         fi
+    elif [ -n "$crs" ]; then
+      s_srs_args="-s_srs $crs"
     fi
     
     # TODO cpg ファイルがあれば使うように修正
     shpfile="$input_directory/$tileLayer.shp"
-    ogr2ogr -f geojsonseq -oo ENCODING=CP932 -t_srs crs:84 "$input_directory/$tileLayer.ndgeojson" "$shpfile"
+    ogr2ogr -f geojsonseq -oo ENCODING=CP932 $s_srs_args -t_srs crs:84 "$input_directory/$tileLayer.ndgeojson" "$shpfile"
     echo "Convert Shape to  ${tileLayer}.ndgeojson"
   fi
 
