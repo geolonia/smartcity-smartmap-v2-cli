@@ -2,8 +2,8 @@
 set -ex
 
 # 引数が指定されているか確認
-if [ -z "$1" ]; then
-  echo "使用方法: $0 <input_directory>"
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "使用方法: $0 <input_directory> <config_file_excel>"
   exit 1
 fi
 
@@ -17,6 +17,12 @@ input_directory=${input_directory%/}
 # ディレクトリが存在するか確認
 if [ ! -d "$input_directory" ]; then
   echo "ディレクトリ $input_directory は存在しません。"
+  exit 1
+fi
+
+# config ファイルが存在するか確認
+if [ ! -f "$2" ]; then
+  echo "ファイル $2 は存在しません。"
   exit 1
 fi
 
