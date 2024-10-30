@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 # 引数が指定されているか確認
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -41,25 +41,26 @@ jq -c '.[]' $json_file | while read item; do
   tippecanoe_opts=$(echo $item | jq -r '.["Tippecanoeオプション"]')
 
 
+  # --------------------------------------------------
+  # 1. データ参照先で URL で指定されたファイルをダウンロード（GeoJSONとCSVに対応）
+  # --------------------------------------------------
+  if [[ $reference =~ ^https://.*$ ]] && [[ $dataType == "geojson" || $dataType == "csv" ]]; then  
 
-  # --------------------------------------------------
-  # 1. データ参照先で URL で指定されたファイルをダウンロード（現状、GeoJSONのみ対応）
-  # --------------------------------------------------
-  if [[ $reference =~ ^https://.*$ ]] && [ $dataType = "geojson" ]; then  
+    # ファイル拡張子を設定
+    extension="${dataType}"
 
     # ダウンロード先のファイルパスを設定
-    download_path="$input_directory/$tileLayer.geojson"
+    download_path="$input_directory/$tileLayer.$extension"
 
     # ダウンロード先のファイルが存在しない場合のみダウンロード
     if [ ! -f "$download_path" ]; then
-      echo "Downloading $tileLayer.geojson ..."
+      echo "Downloading $tileLayer.$extension ..."
       curl -s -o $download_path $reference
-    elif [ -f "$download_path" ]; then
-      echo "$tileLayer.geojson already exists."
+    else
+      echo "$tileLayer.$extension already exists."
       # exit 1;
     fi
   fi
-
 
   # --------------------------------------------------
   # 2. タイルレイヤー名を元にファイルをリネーム
@@ -83,9 +84,20 @@ jq -c '.[]' $json_file | while read item; do
     done
   fi
 
-  # GeoJSON の場合
-  if [ -f "$input_directory/$reference" ] && [ $dataType = "geojson" ]; then
-    mv "$input_directory/$reference" "$input_directory/$tileLayer.geojson"
+  # GeoJSON と CSV の場合（ローカルファイルをリネーム）
+  if [ -f "$input_directory/$reference" ] && [[ $dataType == "geojson" || $dataType == "csv" ]]; then
+    mv "$input_directory/$reference" "$input_directory/$tileLayer.$dataType"
+  fi
+
+  # Shift_JIS のCSVを UTF-8 に変換
+  if [ $dataType = "csv" ] && [ -f "$input_directory/$tileLayer.csv" ]; then
+    csv="$input_directory/$tileLayer.csv"
+
+    if nkf --guess "$csv" | grep -q "CP932"; then
+        iconv -f sjis -t utf8 "$csv" > "${csv}.tmp"
+        mv "${csv}.tmp" "$csv"
+        echo "Convert Shift_JIS to UTF-8: $csv"
+    fi
   fi
 
   # --------------------------------------------------
@@ -113,12 +125,18 @@ jq -c '.[]' $json_file | while read item; do
     echo "Convert Shape to  ${tileLayer}.ndgeojson"
   fi
 
-  # GeoJSON の場合
-  if [ $dataType = "geojson" ]; then
-    geojsonfile="$input_directory/$tileLayer.geojson"
+  # GeoJSON と CSV の場合
+  if [[ $dataType = "geojson" || $dataType = "csv" ]]; then
+    inputFile="$input_directory/$tileLayer.$dataType"
 
-    ogr2ogr -f geojsonseq -oo ENCODING=CP932 -t_srs crs:84 "$input_directory/$tileLayer.ndgeojson" "$geojsonfile"
-    echo "Convert GeoJSON to  ${base}.ndgeojson"
+    if [ $dataType = "geojson" ]; then
+      ogr2ogr -f geojsonseq -oo ENCODING=CP932 -t_srs EPSG:4326 "$input_directory/$tileLayer.ndgeojson" "$inputFile"
+
+    elif [ $dataType = "csv" ]; then
+      ogr2ogr -f geojsonseq -skipfailures -s_srs EPSG:4326 -t_srs EPSG:4326 "$input_directory/$tileLayer.ndgeojson" "$inputFile" -oo X_POSSIBLE_NAMES=経度 -oo Y_POSSIBLE_NAMES=緯度
+    fi
+    
+    echo "Convert ${inputFile} to  ${base}.ndgeojson"
   fi
 
   # --------------------------------------------------
@@ -137,7 +155,7 @@ jq -c '.[]' $json_file | while read item; do
       "--force"
   )
 
-  if [ $dataType = "shape" ] || [ $dataType = "geojson" ]; then
+  if [ $dataType != "fiware" ]; then
     ndgeojsonfile="$input_directory/$tileLayer.ndgeojson"
     mbtilesfile="$input_directory/$tileLayer.mbtiles"
 
