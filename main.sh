@@ -195,4 +195,4 @@ find . -name "*.mbtiles" ! -name "$merged_file" -delete
 # 6. メニューを生成
 # --------------------------------------------------
 
-node ./bin/configToMenuYAML.js $json_file "menu.yml"
+node ./bin/configToMenuYAML.js $json_file "app.yml"
