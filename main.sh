@@ -150,7 +150,7 @@ jq -c '.[]' $json_file | while read item; do
       "-Z" "9"
       "-z" "14"
       "--simplify-only-low-zooms" # 低ズームレベルのみ簡略化
-      "--cluster-distance=10" # 10 ピクセル以内はクラスタリング
+      "--cluster-distance=5" # 10 ピクセル以内はクラスタリング
       "--cluster-densest-as-needed" # 重複がある場合はクラスタリング
       "--force"
   )

@@ -8,12 +8,12 @@
 
 ```
 $ npm install
-$ ./main.sh <input_directory> <config_file_excel>
+$ ./main.sh <input_directory> <config_file_excel> [CRS]
 ```
 
 - `input_directory` には、ベクトルタイルを生成する元データが格納されているディレクトリを指定します。
 - `config_file_excel` には、メニュー用設定ファイルのパスを指定します。
 
 ```
-$ ./main.sh ./data ./data/smartcity-menu.xlsx
+$ ./main.sh ./data ./data/smartcity-menu.xlsx EPSG:2446
 ```
