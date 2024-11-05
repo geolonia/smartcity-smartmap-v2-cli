@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # 引数が指定されているか確認
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -150,7 +150,7 @@ jq -c '.[]' $json_file | while read item; do
       "-Z" "9"
       "-z" "14"
       "--simplify-only-low-zooms" # 低ズームレベルのみ簡略化
-      "--cluster-distance=10" # 10 ピクセル以内はクラスタリング
+      "--cluster-distance=5" # 10 ピクセル以内はクラスタリング
       "--cluster-densest-as-needed" # 重複がある場合はクラスタリング
       "--force"
   )
@@ -195,4 +195,4 @@ find . -name "*.mbtiles" ! -name "$merged_file" -delete
 # 6. メニューを生成
 # --------------------------------------------------
 
-node ./bin/configToMenuYAML.js $json_file "menu.yml"
+node ./bin/configToMenuYAML.js $json_file "app.yml"

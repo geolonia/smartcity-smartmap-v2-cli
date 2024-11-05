@@ -2,11 +2,27 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 
 const configToMenuYAML = (config, outputFile) => {
+  const app = {
+    // TODO: 別の設定ファイルから読み込むようにする
+    name: 'スマートマップ',
+    zoom: 10,
+    center: [135.513, 34.6815],
+    minZoom: 9,
+    maxZoom: 20,
+    menus: {
+      都市情報一覧: {
+        metadata: {
+          tileUrl: 'この値を実際のタイルに置き換えてください',
+        },
+        items: {}
+      }
+    }
+  };
 
-  const menu = {};
+  const menu = app.menus['都市情報一覧'].items;
 
   config.forEach(item => {
-    const { 大カテゴリー, 中カテゴリー, メニュータイトル, タイルレイヤー名, データ種別 } = item;
+    const { 大カテゴリー, 中カテゴリー, メニュータイトル, タイルレイヤー名, データ種別, 短縮レイヤーID, レイヤー色 } = item;
 
     const isFiware = データ種別 === 'fiware';
 
@@ -33,7 +49,18 @@ const configToMenuYAML = (config, outputFile) => {
           throw new Error(`メニュータイトル: ${大カテゴリー}/${中カテゴリー}/${メニュータイトル} は重複しています`);
         }
 
-        const data = { id: `${大カテゴリー}/${中カテゴリー}/${メニュータイトル}`, type: 'data', tileId: タイルレイヤー名 };
+        const data = { 
+          id: `${大カテゴリー}/${中カテゴリー}/${メニュータイトル}`,
+          type: 'data',
+          tileId: タイルレイヤー名,
+          shortId: 短縮レイヤーID
+        };
+
+        // レイヤー色が指定されている場合はメタデータに追加
+        if (レイヤー色) {
+          data.metadata = { color: レイヤー色 };
+        }
+
         if (isFiware) {
           data.dataType = 'fiware';
         }
@@ -49,7 +76,18 @@ const configToMenuYAML = (config, outputFile) => {
           throw new Error(`メニュータイトル: ${大カテゴリー}/${メニュータイトル} は重複しています`);
         }
 
-        const data = { id: `${大カテゴリー}/${メニュータイトル}`, type: 'data', tileId: タイルレイヤー名 };
+        const data = {
+          id: `${大カテゴリー}/${メニュータイトル}`,
+          type: 'data',
+          tileId: タイルレイヤー名,
+          shortId: 短縮レイヤーID
+        };
+
+        // レイヤー色が指定されている場合はメタデータに追加
+        if (レイヤー色) {
+          data.metadata = { color: レイヤー色 };
+        }
+
         if (isFiware) {
           data.dataType = 'fiware';
         }
@@ -65,7 +103,18 @@ const configToMenuYAML = (config, outputFile) => {
           throw new Error(`メニュータイトル: ${メニュータイトル} は重複しています`);
         }
 
-        const data = { id: メニュータイトル, type: 'data', tileId: タイルレイヤー名 };
+        const data = {
+          id: メニュータイトル,
+          type: 'data',
+          tileId: タイルレイヤー名,
+          shortId: 短縮レイヤーID
+        };
+
+        // レイヤー色が指定されている場合はメタデータに追加
+        if (レイヤー色) {
+          data.metadata = { color: レイヤー色 };
+        }
+        
         if (isFiware) {
           data.dataType = 'fiware';
         }
@@ -79,15 +128,13 @@ const configToMenuYAML = (config, outputFile) => {
     }
   });
 
-  // YAMLに変換
-  const yamlStr = yaml.dump(menu, {
+  const yamlStr = yaml.dump(app, {
     lineWidth: -1,
     noRefs: true,
     noCompatMode: true,
     quotingType: '"'
   });
 
-  // ファイルに書き込み
   fs.writeFileSync(outputFile, yamlStr);
   console.log(`メニューファイルを ${outputFile} に出力しました。`);
 }

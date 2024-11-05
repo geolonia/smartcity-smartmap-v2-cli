@@ -136,9 +136,12 @@ _data/
 
 tmp/
 menu.yml
+app.yml
 
 !test/data
 
 output.xlsx
 bin/yaizu
 data.json
+_rawData
+rawData
