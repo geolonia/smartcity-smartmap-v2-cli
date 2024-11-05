@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # 引数が指定されているか確認
 if [ -z "$1" ] || [ -z "$2" ]; then
