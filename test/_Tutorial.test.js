@@ -23,7 +23,7 @@ describe('基本的な使い方', () => {
     execSync(`bash ${scriptPath} ${dataPath} ${configPath} EPSG:2446`);
 
     const mbtilesPath = path.join(__dirname, '../output.mbtiles');
-    const menuPath = path.join(__dirname, '../menu.yml');
+    const menuPath = path.join(__dirname, '../app.yml');
 
     // ファイルが生成されているか確認
     // mbtilesPath にファイルが生成されているか確認
@@ -43,7 +43,7 @@ describe('基本的な使い方', () => {
 
 const deleteFiles = () => {
   const mbtilesPath = path.join(__dirname, '../output.mbtiles');
-  const menuPath = path.join(__dirname, '../menu.yml');
+  const menuPath = path.join(__dirname, '../app.yml');
   try {
     require('fs').unlinkSync(mbtilesPath);
   } catch (err) {
