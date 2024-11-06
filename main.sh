@@ -92,11 +92,13 @@ jq -c '.[]' $json_file | while read item; do
   # Shift_JIS のCSVを UTF-8 に変換
   if [ $dataType = "csv" ] && [ -f "$input_directory/$tileLayer.csv" ]; then
     csv="$input_directory/$tileLayer.csv"
+    
+    encoding=$(nkf --guess "$csv" | sed 's/ .*//')
 
-    if nkf --guess "$csv" | grep -q "CP932"; then
-        iconv -f sjis -t utf8 "$csv" > "${csv}.tmp"
+    if [[ $encoding != "UTF-8" ]]; then
+        iconv -f "$encoding" -t UTF-8 "$csv" > "${csv}.tmp"
         mv "${csv}.tmp" "$csv"
-        echo "Convert Shift_JIS to UTF-8: $csv"
+        echo "Converted $encoding to UTF-8: $csv"
     fi
   fi
 
