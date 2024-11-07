@@ -40,7 +40,6 @@ jq -c '.[]' $json_file | while read item; do
   reference=$(echo $item | jq -r '.["データ参照先"]')
   tippecanoe_opts=$(echo $item | jq -r '.["Tippecanoeオプション"]')
 
-
   # --------------------------------------------------
   # 1. データ参照先で URL で指定されたファイルをダウンロード（GeoJSONとCSVに対応）
   # --------------------------------------------------
@@ -67,16 +66,18 @@ jq -c '.[]' $json_file | while read item; do
   # --------------------------------------------------
 
   # Shape の場合
-  if [ $dataType = "shape" ]; then
+  if [ "$dataType" = "shape" ]; then
+
     extensions=("shp" "prj" "cpg" "dbf" "sbn" "fbn" "ain" "ixs" "mxs" "atx" "shp.xml" "shx" "sbx")
-    reference_file=$(basename $reference ".shp")
+    reference_file=$(basename "$reference" ".shp")
     for ext in "${extensions[@]}"; do
+      # -iname を使って拡張子の大文字小文字を無視して検索し、結果を小文字に変換
       src=$(find "$input_directory" -iname "$reference_file.$ext" -print -quit)
-      dst="$input_directory/$tileLayer.$ext"
+      dst="$input_directory/$tileLayer.${ext,,}"  # ${ext,,}で拡張子を小文字に変換
 
       # 移動元と移動先が同じか確認
       if [ -n "$src" ] && [ "$src" != "$dst" ]; then
-          echo "ファイル名を変更:  $src to $dst"
+          echo "ファイル名を変更: $src to $dst"
           mv "$src" "$dst"
       else
           echo "移動元と移動先が同じファイルです。操作をスキップします。"
@@ -157,7 +158,7 @@ jq -c '.[]' $json_file | while read item; do
       "--force"
   )
 
-  if [ $dataType != "fiware" ]; then
+  if [[ "$dataType" != "fiware" && "$dataType" != "raster" ]]; then
     ndgeojsonfile="$input_directory/$tileLayer.ndgeojson"
     mbtilesfile="$input_directory/$tileLayer.mbtiles"
 

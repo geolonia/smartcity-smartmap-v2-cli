@@ -1,12 +1,23 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 
+// タイルレイヤー名から3桁の短縮IDを生成する関数
+const generateShortId = (tileLayerName) => {
+  const hash = Array.from(tileLayerName)
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0); // Unicodeの合計を計算
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return (
+    alphabet[hash % 26] +
+    alphabet[Math.floor((hash / 26) % 26)] +
+    alphabet[Math.floor((hash / 676) % 26)]
+  ); // 3文字のIDを生成
+};
+
 const configToMenuYAML = (config, outputFile) => {
   const app = {
-    // TODO: 別の設定ファイルから読み込むようにする
     name: 'スマートマップ',
-    zoom: 10,
-    center: [135.513, 34.6815],
+    zoom: 12,
+    center: [138.29255, 34.83344],
     minZoom: 9,
     maxZoom: 20,
     menus: {
@@ -22,9 +33,9 @@ const configToMenuYAML = (config, outputFile) => {
   const menu = app.menus['都市情報一覧'].items;
 
   config.forEach(item => {
-    const { 大カテゴリー, 中カテゴリー, メニュータイトル, タイルレイヤー名, データ種別, 短縮レイヤーID, レイヤー色 } = item;
+    const { 大カテゴリー, 中カテゴリー, メニュータイトル, タイルレイヤー名, データ種別, レイヤー色, データ参照先 } = item;
 
-    const isFiware = データ種別 === 'fiware';
+    const isCustomDataType = データ種別 === 'fiware' || データ種別 === 'raster';
 
     if (!大カテゴリー && 中カテゴリー) {
       throw new Error('中カテゴリーを指定する場合は、大カテゴリーも指定してください');
@@ -37,7 +48,7 @@ const configToMenuYAML = (config, outputFile) => {
 
     // 中カテゴリーがない場合は追加
     if (中カテゴリー && !menu[大カテゴリー].items[中カテゴリー]) {
-      menu[大カテゴリー].items[中カテゴリー] = { id: `${大カテゴリー}/${中カテゴリー}`,type: 'category', items: {} };
+      menu[大カテゴリー].items[中カテゴリー] = { id: `${大カテゴリー}/${中カテゴリー}`, type: 'category', items: {} };
     }
 
     if (メニュータイトル) {
@@ -53,23 +64,23 @@ const configToMenuYAML = (config, outputFile) => {
           id: `${大カテゴリー}/${中カテゴリー}/${メニュータイトル}`,
           type: 'data',
           tileId: タイルレイヤー名,
-          shortId: 短縮レイヤーID
         };
 
-        // レイヤー色が指定されている場合はメタデータに追加
         if (レイヤー色) {
           data.metadata = { color: レイヤー色 };
         }
 
-        if (isFiware) {
-          data.dataType = 'fiware';
+        if (isCustomDataType) {
+          data.dataType = データ種別;
+          data.shortId = generateShortId(データ参照先) // Fiwareの場合はデータ参照先を使用
+        } else {
+          data.shortId = generateShortId(タイルレイヤー名)
         }
 
         menu[大カテゴリー].items[中カテゴリー].items[メニュータイトル] = data;
         return;
       }
 
-      // 大カテゴリとメニュータイトルがある場合
       if (大カテゴリー && メニュータイトル) {
 
         if (menu[大カテゴリー].items[メニュータイトル]) {
@@ -80,23 +91,23 @@ const configToMenuYAML = (config, outputFile) => {
           id: `${大カテゴリー}/${メニュータイトル}`,
           type: 'data',
           tileId: タイルレイヤー名,
-          shortId: 短縮レイヤーID
         };
 
-        // レイヤー色が指定されている場合はメタデータに追加
         if (レイヤー色) {
           data.metadata = { color: レイヤー色 };
         }
 
-        if (isFiware) {
-          data.dataType = 'fiware';
+        if (isCustomDataType) {
+          data.dataType = データ種別;
+          data.shortId = generateShortId(データ参照先) // Fiwareの場合はデータ参照先を使用
+        } else {
+          data.shortId = generateShortId(タイルレイヤー名)
         }
 
         menu[大カテゴリー].items[メニュータイトル] = data;
         return;
       }
 
-      // メニュータイトルのみの場合
       if (メニュータイトル) {
 
         if (menu[メニュータイトル]) {
@@ -107,18 +118,19 @@ const configToMenuYAML = (config, outputFile) => {
           id: メニュータイトル,
           type: 'data',
           tileId: タイルレイヤー名,
-          shortId: 短縮レイヤーID
         };
 
-        // レイヤー色が指定されている場合はメタデータに追加
         if (レイヤー色) {
           data.metadata = { color: レイヤー色 };
         }
         
-        if (isFiware) {
-          data.dataType = 'fiware';
+        if (isCustomDataType) {
+          data.dataType = データ種別;
+          data.shortId = generateShortId(データ参照先) // Fiwareの場合はデータ参照先を使用
+        } else {
+          data.shortId = generateShortId(タイルレイヤー名)
         }
-        
+
         menu[メニュータイトル] = data;
 
         return;
