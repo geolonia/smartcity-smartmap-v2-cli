@@ -159,7 +159,7 @@ jq -c '.[]' $json_file | while read item; do
 
     # EPSG:4326 で UTF-8 の Shapefile に変換
     if [ ! -f "$prj_file" ]; then
-        # .prj ファイルがない場合、EPSG:6676 を使用して変換
+        # .prj ファイルがない場合、指定されたCRS を使用して変換
         ogr2ogr -f "ESRI Shapefile" $s_srs_args -t_srs EPSG:4326 -lco ENCODING=UTF-8 "$temp_file" "$shpfile"
     else
         # .prj ファイルがある場合はそのまま変換
