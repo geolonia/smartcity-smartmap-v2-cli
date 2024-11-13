@@ -33,6 +33,6 @@ $ ./main.sh ./data ./スマートマップ地理空間データ設定.xlsx
 $ git@github.com:geolonia/smartcity-smartmap-v2-cli.git
 $ cd smartcity-smartmap-v2-cli
 $ npm install
-$ ./main.sh . ./スマートマップ地理空間データ設定.xlsx
+$ ./main.sh . ./スマートマップ地理空間データ設定.xlsx EPSG:6677
 ```
 
