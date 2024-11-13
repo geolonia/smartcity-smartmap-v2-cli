@@ -32,8 +32,11 @@ json_file="data.json"
 # 全ての不要なファイルを削除
 find . -name "*.mbtiles" | xargs -I '{}' rm "{}"
 find . -name "*.ndgeojson" | xargs -I '{}' rm "{}"
+shapeExtensions=("shp" "dbf" "shx" "prj" "cpg" "SHP" "DBF" "SHX" "PRJ" "CPG")
+
 
 jq -c '.[]' $json_file | while read item; do
+
   # 各フィールドを取り出す
   tileLayer=$(echo $item | jq -r '.["タイルレイヤー名"]')
   dataType=$(echo $item | jq -r '.["データ種別"]')
@@ -41,36 +44,65 @@ jq -c '.[]' $json_file | while read item; do
   tippecanoe_opts=$(echo $item | jq -r '.["Tippecanoeオプション"]')
 
   # --------------------------------------------------
-  # 1. データ参照先で URL で指定されたファイルをダウンロード（GeoJSONとCSVに対応）
+  # 1. データ参照先で URL で指定されたファイルをダウンロード（GeoJSONとCSV、Shapefileに対応）
   # --------------------------------------------------
-  if [[ $reference =~ ^https://.*$ ]] && [[ $dataType == "geojson" || $dataType == "csv" ]]; then  
+  if [[ $reference =~ ^https://.*$ ]] && [[ $dataType == "geojson" || $dataType == "csv" || $dataType == "shp" ]]; then
 
-    # ファイル拡張子を設定
-    extension="${dataType}"
+    # Shapefileの場合は関連ファイルもダウンロード
+    if [[ $dataType == "shp" ]]; then
 
-    # ダウンロード先のファイルパスを設定
-    download_path="$input_directory/$tileLayer.$extension"
+      for ext in "${shapeExtensions[@]}"; do
+        # ファイル拡張子を設定
+        extension="$ext"
+        
+        # ダウンロード先のファイルパスを設定
+        download_path="$input_directory/$tileLayer.$extension"
+        
+        # URLを関連ファイルの拡張子に変更
+        reference_file="${reference%.*}.$extension"
+        
+        # ダウンロード先のファイルが存在しない場合のみダウンロード
+        if [ ! -f "$download_path" ]; then
+          echo "Downloading $tileLayer.$extension ..."
+          
+          # curlでステータスコードを取得し、ダウンロード
+          http_status=$(curl -L -H "Cache-Control: no-cache" -s -o "$download_path" -w "%{http_code}" "$reference_file")
+          echo "Status: $http_status"
 
-    # ダウンロード先のファイルが存在しない場合のみダウンロード
-    if [ ! -f "$download_path" ]; then
-      echo "Downloading $tileLayer.$extension ..."
-      curl -s -o $download_path $reference
+          # ステータスコードが200番台または300番台でなければファイルを削除
+          if [ "$http_status" -eq 200 ]; then
+            echo "$tileLayer.$extension downloaded successfully."
+          else
+            echo "Failed to download $tileLayer.$extension (Status: $http_status). Removing incomplete file."
+            rm -f "$download_path"
+          fi
+        else
+          echo "$tileLayer.$extension already exists."
+        fi
+      done
+      
     else
-      echo "$tileLayer.$extension already exists."
-      # exit 1;
+      # 他のファイルタイプ（GeoJSONやCSV）の場合
+      extension="${dataType}"
+      download_path="$input_directory/$tileLayer.$extension"
+
+      if [ ! -f "$download_path" ]; then
+        echo "Downloading $tileLayer.$extension ..."
+        curl -H "Cache-Control: no-cache" -s -o $download_path $reference
+      else
+        echo "$tileLayer.$extension already exists."
+      fi
     fi
   fi
 
   # --------------------------------------------------
   # 2. タイルレイヤー名を元にファイルをリネーム
   # --------------------------------------------------
-
   # Shape の場合
-  if [ "$dataType" = "shape" ]; then
+  if [ "$dataType" = "shp" ]; then
 
-    extensions=("shp" "prj" "cpg" "dbf" "sbn" "fbn" "ain" "ixs" "mxs" "atx" "shp.xml" "shx" "sbx")
     reference_file=$(basename "$reference" ".shp")
-    for ext in "${extensions[@]}"; do
+    for ext in "${shapeExtensions[@]}"; do
       # -iname を使って拡張子の大文字小文字を無視して検索し、結果を小文字に変換
       src=$(find "$input_directory" -iname "$reference_file.$ext" -print -quit)
       dst="$input_directory/$tileLayer.${ext,,}"  # ${ext,,}で拡張子を小文字に変換
@@ -110,7 +142,7 @@ jq -c '.[]' $json_file | while read item; do
   # Shape の場合
   s_srs_args=""
 
-  if [ $dataType = "shape" ]; then
+  if [ $dataType = "shp" ]; then
     # .prj ファイルが Shift_JIS だと ogr2ogr でエラーが出るので UTF-8 に変換
     prj_file="$input_directory/$tileLayer.prj"
     if [ -f $prj_file ]; then
@@ -122,9 +154,21 @@ jq -c '.[]' $json_file | while read item; do
       s_srs_args="-s_srs $crs"
     fi
     
-    # TODO cpg ファイルがあれば使うように修正
     shpfile="$input_directory/$tileLayer.shp"
-    ogr2ogr -f geojsonseq -oo ENCODING=CP932 $s_srs_args -t_srs crs:84 "$input_directory/$tileLayer.ndgeojson" "$shpfile"
+    temp_file="$input_directory/$tileLayer-temp.shp"
+
+    # EPSG:4326 で UTF-8 の Shapefile に変換
+    if [ ! -f "$prj_file" ]; then
+        # .prj ファイルがない場合、EPSG:6676 を使用して変換
+        ogr2ogr -f "ESRI Shapefile" $s_srs_args -t_srs EPSG:4326 -lco ENCODING=UTF-8 "$temp_file" "$shpfile"
+    else
+        # .prj ファイルがある場合はそのまま変換
+        ogr2ogr -f "ESRI Shapefile" -t_srs EPSG:4326 -lco ENCODING=UTF-8 "$temp_file" "$shpfile"
+    fi
+
+    # ndgeojson に変換
+    ogr2ogr -f geojsonseq "$input_directory/$tileLayer.ndgeojson" "$temp_file"
+
     echo "Convert Shape to  ${tileLayer}.ndgeojson"
   fi
 
@@ -133,10 +177,25 @@ jq -c '.[]' $json_file | while read item; do
     inputFile="$input_directory/$tileLayer.$dataType"
 
     if [ $dataType = "geojson" ]; then
-      ogr2ogr -f geojsonseq -oo ENCODING=CP932 -t_srs EPSG:4326 "$input_directory/$tileLayer.ndgeojson" "$inputFile"
+      ogr2ogr -f geojsonseq -t_srs EPSG:4326 "$input_directory/$tileLayer.ndgeojson" "$inputFile"
 
     elif [ $dataType = "csv" ]; then
-      ogr2ogr -f geojsonseq -skipfailures -s_srs EPSG:4326 -t_srs EPSG:4326 "$input_directory/$tileLayer.ndgeojson" "$inputFile" -oo X_POSSIBLE_NAMES=経度 -oo Y_POSSIBLE_NAMES=緯度
+
+      # 経度と緯度の列名候補を正規表現で定義
+      longitude_patterns="longitude|lng|lon|経度\(度：世界測地系\）|経度\（度：世界測地系\）|経度\(10進\)"
+      latitude_patterns="latitude|lat|緯度\（度：世界測地系\）|緯度\（度：世界測地系\）|緯度\(10進\)"
+
+      # CSV の場合は経度と緯度の列名変換処理
+      tempFile="$input_directory/${tileLayer}_temp.csv"
+
+      # 1行目の列名を変換してから出力
+      sed -E "1s/($longitude_patterns)/経度/g; 1s/($latitude_patterns)/緯度/g" "$inputFile" > "$tempFile"
+
+      # 変換した一時ファイルを使用して ogr2ogr コマンドを実行
+      ogr2ogr -f geojsonseq -skipfailures -s_srs EPSG:4326 -t_srs EPSG:4326 "$input_directory/$tileLayer.ndgeojson" "$tempFile" -oo X_POSSIBLE_NAMES=経度 -oo Y_POSSIBLE_NAMES=緯度
+      
+      # 一時ファイルを削除
+      rm "$tempFile"
     fi
     
     echo "Convert ${inputFile} to  ${base}.ndgeojson"
