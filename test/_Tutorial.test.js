@@ -45,7 +45,7 @@ const deleteFiles = () => {
   // mbtiles、ndgeojson、geojson、shp、cpg、dbf、prj、shxを削除
   const files = require('fs').readdirSync(__dirname);
   files.forEach((file) => {
-    if (file.match(/.*\.(mbtiles|ndgeojson|geojson|shp|cpg|dbf|prj|shx|yml)$/)) {
+    if (file.match(/.*\.(mbtiles|ndgeojson|geojson|shp|cpg|dbf|prj|shx|yml|csv)$/)) {
       fs.unlinkSync(path.join(__dirname, file));
     }
   });
