@@ -159,7 +159,7 @@ jq -c '.[]' $json_file | while read item; do
 
     # EPSG:4326 で UTF-8 の Shapefile に変換
     if [ ! -f "$prj_file" ]; then
-        # .prj ファイルがない場合、指定されたCRS を使用して変換
+        # .prj ファイルがない場合、EPSG:6676 を使用して変換
         ogr2ogr -f "ESRI Shapefile" $s_srs_args -t_srs EPSG:4326 -lco ENCODING=UTF-8 "$temp_file" "$shpfile"
     else
         # .prj ファイルがある場合はそのまま変換
@@ -209,7 +209,7 @@ jq -c '.[]' $json_file | while read item; do
   TIPPECANOE_OPTS=(
       "-M" "500000" # タイルサイズを500KBに制限
       "--no-tile-stats" # タイル統計情報を生成しない
-      "-Z" "9"
+      "-Z" "8"
       "-z" "14"
       "--simplify-only-low-zooms" # 低ズームレベルのみ簡略化
       "--cluster-distance=5" # 10 ピクセル以内はクラスタリング
@@ -238,7 +238,7 @@ TILEJOIN_OPTS=(
     "--overzoom" # オーバーズームを有効
     "--no-tile-size-limit" # タイルサイズの制限を無効
     "--no-tile-stats" # タイル統計情報を生成しない
-    "-Z" "9" # このズーム以下のタイルはコピーしない
+    "-Z" "8" # このズーム以下のタイルはコピーしない
     "-z" "14" # このズーム以上のタイルはコピーしない
     "--force"
 )

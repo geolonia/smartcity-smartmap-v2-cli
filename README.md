@@ -22,7 +22,7 @@ $ ./main.sh <input_directory> <config_file_excel> [CRS]
 - `config_file_excel` には、メニュー用設定ファイルのパスを指定します。
 
 ```bash
-$ ./main.sh ./data ./スマートマップ地理空間データ設定.xlsx EPSG:2446
+$ ./main.sh ./data ./スマートマップ地理空間データ設定.xlsx EPSG:6676 // 8系
 ```
 
 ## 試してみる
