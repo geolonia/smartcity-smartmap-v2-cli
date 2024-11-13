@@ -248,9 +248,9 @@ echo "マージする .mbtiles ファイル: ${mbtiles_files[@]}"
 merged_file="output.mbtiles"
 tile-join -o "$merged_file" "${TILEJOIN_OPTS[@]}" "${mbtiles_files[@]}"
 
-# 処理が終わったら .ndgeojson と .mbtiles ファイルを削除
-find . -name "*.ndgeojson" -delete
-find . -name "*.mbtiles" ! -name "$merged_file" -delete
+# # 処理が終わったら .ndgeojson と .mbtiles ファイルを削除
+# find . -name "*.ndgeojson" -delete
+# find . -name "*.mbtiles" ! -name "$merged_file" -delete
 
 
 # --------------------------------------------------

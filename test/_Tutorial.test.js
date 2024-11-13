@@ -1,5 +1,6 @@
 const { execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 describe('基本的な使い方', () => {
 
@@ -18,9 +19,8 @@ describe('基本的な使い方', () => {
   test('タイルとメニュー用ファイルを生成', async () => {
     // ディレクトリを取得
     const scriptPath = path.join(__dirname, '../main.sh');
-    const dataPath = path.join(__dirname, 'data');
     const configPath = path.join(__dirname, 'config/basic.xlsx');
-    execSync(`bash ${scriptPath} ${dataPath} ${configPath} EPSG:2446`);
+    execSync(`bash ${scriptPath} ${__dirname} ${configPath} EPSG:2446`);
 
     const mbtilesPath = path.join(__dirname, '../output.mbtiles');
     const menuPath = path.join(__dirname, '../app.yml');
@@ -42,16 +42,11 @@ describe('基本的な使い方', () => {
 });
 
 const deleteFiles = () => {
-  const mbtilesPath = path.join(__dirname, '../output.mbtiles');
-  const menuPath = path.join(__dirname, '../app.yml');
-  try {
-    require('fs').unlinkSync(mbtilesPath);
-  } catch (err) {
-    // ファイルが存在しない場合は何もしない
-  }
-  try {
-    require('fs').unlinkSync(menuPath);
-  } catch (err) {
-    // ファイルが存在しない場合は何もしない
-  }    
+  // mbtiles、ndgeojson、geojson、shp、cpg、dbf、prj、shxを削除
+  const files = require('fs').readdirSync(__dirname);
+  files.forEach((file) => {
+    if (file.match(/.*\.(mbtiles|ndgeojson|geojson|shp|cpg|dbf|prj|shx|yml)$/)) {
+      fs.unlinkSync(path.join(__dirname, file));
+    }
+  });
 }
