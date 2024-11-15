@@ -4,6 +4,17 @@
  [スマートマップデータテンプレート（Excel）](https://docs.google.com/spreadsheets/d/1IQKC5dRNlWaINs0BkmYamaLQIgX6kQuLLzN-nQryBlU/edit?usp=sharing) を読み込んで、[smartcity-smartmap-v2](https://github.com/geolonia/smartcity-smartmap-v2) で使用する、メニュー用設定ファイルと、ベクトルタイルを生成する CLI ツールです。
 
 
+## Excel の列について
+- 大カテゴリー：第1位置階層のカテゴリ名を入力
+- 中カテゴリー：第2位置階層のカテゴリ名を入力
+- メニュータイトル：メニューのタイルを入力
+- タイルレイヤー名：全データでユニークなIDを入力（この値をタイルのソースレイヤー名として使用します）
+- データ種別：shp、geojson、csv、datapng に対応
+- データ参照先：URLでデータの参照先を指定。（Shapeファイルの場合は、.shp の URLを指定）
+- Tippecanoeオプション
+- レイヤー色：hexでカラーコードを指定すると、その色が反映されます
+
+
 ## 要件
 - GDAL（ogr2ogr）、Tippecanoe、nkf
 
