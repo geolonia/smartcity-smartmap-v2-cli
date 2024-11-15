@@ -43,6 +43,11 @@ jq -c '.[]' $json_file | while read item; do
   reference=$(echo $item | jq -r '.["データ参照先"]')
   tippecanoe_opts=$(echo $item | jq -r '.["Tippecanoeオプション"]')
 
+  # dataType が "fiware" または "datapng" の場合はスキップ
+  if [[ $dataType == "fiware" || $dataType == "datapng" ]]; then
+    continue
+  fi
+
   # --------------------------------------------------
   # 1. データ参照先で URL で指定されたファイルをダウンロード（GeoJSONとCSV、Shapefileに対応）
   # --------------------------------------------------
@@ -209,7 +214,7 @@ jq -c '.[]' $json_file | while read item; do
   TIPPECANOE_OPTS=(
       "-M" "500000" # タイルサイズを500KBに制限
       "--no-tile-stats" # タイル統計情報を生成しない
-      "-Z" "8"
+      "-Z" "9"
       "-z" "14"
       "--simplify-only-low-zooms" # 低ズームレベルのみ簡略化
       "--cluster-distance=5" # 10 ピクセル以内はクラスタリング
@@ -238,7 +243,7 @@ TILEJOIN_OPTS=(
     "--overzoom" # オーバーズームを有効
     "--no-tile-size-limit" # タイルサイズの制限を無効
     "--no-tile-stats" # タイル統計情報を生成しない
-    "-Z" "8" # このズーム以下のタイルはコピーしない
+    "-Z" "9" # このズーム以下のタイルはコピーしない
     "-z" "14" # このズーム以上のタイルはコピーしない
     "--force"
 )
