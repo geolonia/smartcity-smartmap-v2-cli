@@ -14,6 +14,8 @@
 - Tippecanoeオプション
 - レイヤー色：hexでカラーコードを指定すると、その色が反映されます
 
+### Shapeの仕様について
+- .prj（投影法）、.cpg （エンコードファイル）必須
 
 ## 要件
 - GDAL（ogr2ogr）、Tippecanoe、nkf
