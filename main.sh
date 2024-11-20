@@ -44,7 +44,7 @@ jq -c '.[]' $json_file | while read item; do
   tippecanoe_opts=$(echo $item | jq -r '.["Tippecanoeオプション"]')
 
   # dataType が "fiware" または "datapng" の場合はスキップ
-  if [[ $dataType == "fiware" || $dataType == "datapng" ]]; then
+  if [[ $dataType == "fiware" || $dataType == "datapng" || $dataType == "raster" ]]; then
     continue
   fi
 
@@ -255,6 +255,7 @@ tile-join -o "$merged_file" "${TILEJOIN_OPTS[@]}" "${mbtiles_files[@]}"
 
 # 処理が終わったら .ndgeojson と .mbtiles ファイルを削除
 find . -name "*.ndgeojson" -delete
+find . -name "*.geojson" -delete
 find . -name "*.mbtiles" ! -name "$merged_file" -delete
 
 
