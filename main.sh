@@ -222,7 +222,7 @@ jq -c '.[]' $json_file | while read item; do
       "--force"
   )
 
-  if [[ "$dataType" != "fiware" && "$dataType" != "raster" ]]; then
+  if [[ "$dataType" != "fiware" || "$dataType" != "raster" || "$dataType" != "datapng" ]]; then
     ndgeojsonfile="$input_directory/$tileLayer.ndgeojson"
     mbtilesfile="$input_directory/$tileLayer.mbtiles"
 
