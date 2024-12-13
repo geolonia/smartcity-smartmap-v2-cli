@@ -6,6 +6,12 @@ const parse = (filePath) => {
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(sheet);
+
+    // ダウンロードコード と テストTippecannoeコードを除外
+    data.forEach((d) => {
+        delete d['ダウンロードコード'];
+        delete d['テストTippecannoeコード'];
+    });
     return data;
 }
 
