@@ -30,7 +30,7 @@ node ./bin/xlsx2json.js $2
 json_file="data.json"
 
 # 全ての不要なファイルを削除
-find . -name "*.mbtiles" | xargs -I '{}' rm "{}"
+# find . -name "*.mbtiles" | xargs -I '{}' rm "{}"
 find . -name "*.ndgeojson" | xargs -I '{}' rm "{}"
 shapeExtensions=("shp" "dbf" "shx" "prj" "cpg" "SHP" "DBF" "SHX" "PRJ" "CPG")
 
@@ -42,9 +42,17 @@ jq -c '.[]' $json_file | while read item; do
   dataType=$(echo $item | jq -r '.["データ種別"]')
   reference=$(echo $item | jq -r '.["データ参照先"]')
   tippecanoe_opts=$(echo $item | jq -r '.["Tippecanoeオプション"]')
+  ndgeojsonfile="$input_directory/$tileLayer.ndgeojson"
+  mbtilesfile="$input_directory/$tileLayer.mbtiles"
 
   # dataType が "fiware" または "datapng" の場合はスキップ
-  if [[ $dataType == "fiware" || $dataType == "datapng" || $dataType == "raster" ]]; then
+  if [[ $dataType == "fiware" || $dataType == "datapng" || $dataType == "raster" || $dataType == "vector" ]]; then
+    continue
+  fi
+
+  # mbtiles ファイルが存在する場合はスキップ
+  if [ -f "$mbtilesfile" ]; then
+    echo "$mbtilesfile は既に存在します。スキップします。"
     continue
   fi
 
@@ -223,8 +231,6 @@ jq -c '.[]' $json_file | while read item; do
   )
 
   if [[ "$dataType" != "fiware" && "$dataType" != "raster" ]]; then
-    ndgeojsonfile="$input_directory/$tileLayer.ndgeojson"
-    mbtilesfile="$input_directory/$tileLayer.mbtiles"
 
     # Tippecanoeオプションが指定されていない場合はデフォルトのオプションを使用
     if [ "$tippecanoe_opts" == "null" ]; then
