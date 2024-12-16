@@ -1,6 +1,8 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 
+console.log('configToMenuYAML.js');
+
 // タイルレイヤー名から3桁の短縮IDを生成する関数
 const generateShortId = (tileLayerName) => {
   const hash = Array.from(tileLayerName)
@@ -12,6 +14,31 @@ const generateShortId = (tileLayerName) => {
     alphabet[Math.floor((hash / 676) % 26)]
   ); // 3文字のIDを生成
 };
+
+const createData = (id, item, isCustomDataType) => {
+  const data = { 
+    id: id,
+    type: 'data',
+    tileId: item.タイルレイヤー名,
+  };
+
+  if (item.レイヤー色) {
+    data.metadata = { color: item.レイヤー色 };
+  }
+
+  if (isCustomDataType && isCustomDataType !== 'fiware') {
+    data.metadata = {
+      dataType: item.データ種別,
+      tileUrl: item.データ参照先,
+    }
+  }
+
+  if (item.タイルレイヤー名) {
+    data.shortId = generateShortId(item.タイルレイヤー名)
+  }
+
+  return data;
+}
 
 const configToMenuYAML = (config, outputFile) => {
   const app = {
@@ -33,9 +60,10 @@ const configToMenuYAML = (config, outputFile) => {
   const menu = app.menus['都市情報一覧'].items;
 
   config.forEach(item => {
-    const { 大カテゴリー, 中カテゴリー, メニュータイトル, タイルレイヤー名, データ種別, レイヤー色, データ参照先 } = item;
+    const { 大カテゴリー, 中カテゴリー, メニュータイトル, データ種別 } = item;
+    console.log(item);
 
-    const isCustomDataType = データ種別 === 'fiware' || データ種別 === 'raster';
+    const isCustomDataType = データ種別 === 'raster' ||  データ種別 === 'vector' || データ種別 === 'datapng' || データ種別 === 'fiware';
 
     if (!大カテゴリー && 中カテゴリー) {
       throw new Error('中カテゴリーを指定する場合は、大カテゴリーも指定してください');
@@ -60,22 +88,7 @@ const configToMenuYAML = (config, outputFile) => {
           throw new Error(`メニュータイトル: ${大カテゴリー}/${中カテゴリー}/${メニュータイトル} は重複しています`);
         }
 
-        const data = { 
-          id: `${大カテゴリー}/${中カテゴリー}/${メニュータイトル}`,
-          type: 'data',
-          tileId: タイルレイヤー名,
-        };
-
-        if (レイヤー色) {
-          data.metadata = { color: レイヤー色 };
-        }
-
-        if (isCustomDataType) {
-          data.dataType = データ種別;
-          data.shortId = generateShortId(データ参照先) // Fiwareの場合はデータ参照先を使用
-        } else {
-          data.shortId = generateShortId(タイルレイヤー名)
-        }
+        const data = createData(`${大カテゴリー}/${中カテゴリー}/${メニュータイトル}`, item, isCustomDataType);
 
         menu[大カテゴリー].items[中カテゴリー].items[メニュータイトル] = data;
         return;
@@ -87,23 +100,7 @@ const configToMenuYAML = (config, outputFile) => {
           throw new Error(`メニュータイトル: ${大カテゴリー}/${メニュータイトル} は重複しています`);
         }
 
-        const data = {
-          id: `${大カテゴリー}/${メニュータイトル}`,
-          type: 'data',
-          tileId: タイルレイヤー名,
-        };
-
-        if (レイヤー色) {
-          data.metadata = { color: レイヤー色 };
-        }
-
-        if (isCustomDataType) {
-          data.dataType = データ種別;
-          data.shortId = generateShortId(データ参照先) // Fiwareの場合はデータ参照先を使用
-        } else {
-          data.shortId = generateShortId(タイルレイヤー名)
-        }
-
+        const data = createData(`${大カテゴリー}/${メニュータイトル}`, item, isCustomDataType);
         menu[大カテゴリー].items[メニュータイトル] = data;
         return;
       }
@@ -114,23 +111,7 @@ const configToMenuYAML = (config, outputFile) => {
           throw new Error(`メニュータイトル: ${メニュータイトル} は重複しています`);
         }
 
-        const data = {
-          id: メニュータイトル,
-          type: 'data',
-          tileId: タイルレイヤー名,
-        };
-
-        if (レイヤー色) {
-          data.metadata = { color: レイヤー色 };
-        }
-        
-        if (isCustomDataType) {
-          data.dataType = データ種別;
-          data.shortId = generateShortId(データ参照先) // Fiwareの場合はデータ参照先を使用
-        } else {
-          data.shortId = generateShortId(タイルレイヤー名)
-        }
-
+        const data = createData(メニュータイトル, item, isCustomDataType);
         menu[メニュータイトル] = data;
 
         return;
