@@ -146,3 +146,5 @@ data.json
 _rawData
 rawData
 data_test
+*.mbtiles
+*.pmtiles
