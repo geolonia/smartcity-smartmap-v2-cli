@@ -73,6 +73,8 @@ jq -c '.[]' $json_file | while read item; do
         
         # URLを関連ファイルの拡張子に変更
         reference_file="${reference%.*}.$extension"
+        # キャッシュ対策
+        reference_file="${reference_file}?date=$(date +%s)"
         
         # ダウンロード先のファイルが存在しない場合のみダウンロード
         if [ ! -f "$download_path" ]; then
@@ -259,10 +261,10 @@ echo "マージする .mbtiles ファイル: ${mbtiles_files[@]}"
 merged_file="output.mbtiles"
 tile-join -o "$merged_file" "${TILEJOIN_OPTS[@]}" "${mbtiles_files[@]}"
 
-# 処理が終わったら .ndgeojson と .mbtiles ファイルを削除
-find . -name "*.ndgeojson" -delete
-find . -name "*.geojson" -delete
-find . -name "*.mbtiles" ! -name "$merged_file" -delete
+# # 処理が終わったら .ndgeojson と .mbtiles ファイルを削除
+# find . -name "*.ndgeojson" -delete
+# find . -name "*.geojson" -delete
+# find . -name "*.mbtiles" ! -name "$merged_file" -delete
 
 
 # --------------------------------------------------
